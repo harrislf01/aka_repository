@@ -1,0 +1,36 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Basic configuration for plots
+%matplotlib inline
+sns.set(style="whitegrid") 
+
+# Load the dataset
+# Replace 'hitl_iot_ids.csv' with your actual filename
+df = pd.read_csv('hitl_iot_ids.csv')
+
+# Display the first few rows to confirm features like Analyst Confidence
+print(df.head())
+
+# Check the distribution of device types
+print(df['device_type'].value_counts())
+
+# Check for missing values in HITL-specific columns
+hitl_features = ['Analyst_Confidence', 'Decision_Latency', 'Attack_Type']
+print(df[hitl_features].isnull().sum())
+
+# Basic correlation to see how human confidence relates to attack detection
+correlation_matrix = df.corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
+plt.title("Feature Correlation Map")
+plt.show()
+
+# Categorize data by 'High' vs 'Low' Latency to simulate the delay strategy
+threshold = df['Decision_Latency'].median()
+df['is_delayed'] = df['Decision_Latency'] > threshold
+
+# Compare accuracy/confidence for DDoS attacks specifically
+ddos_data = df[df['Attack_Type'] == 'DDoS']
+print(ddos_data.groupby('is_delayed')['Analyst_Confidence'].mean())
